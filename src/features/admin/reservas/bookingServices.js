@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured, withMockDelay } from "@/shared/lib/supabase";
+import { apiRequest } from "@/shared/lib/api.js";
 import { ESTADO_RESERVA_OPTIONS, ESTADO_USUARIO_OPTIONS, NATIONALITY_OPTIONS as SHARED_NATIONALITY_OPTIONS } from "@/shared/constants/dbEnums";
 import { mockClientes } from "@/features/admin/clientes/clientServices";
 import { mockSalidasTour, mockTours } from "@/features/admin/tours/tourServices";
@@ -620,3 +621,12 @@ export const bookingServices = {
 export { mockTours, mockClientes, mockGuides };
 
 export default bookingServices;
+
+Object.assign(bookingServices, {
+  async fetchReservas() { return (await apiRequest("/reservas")).reservas ?? []; },
+  async fetchParticipantes(id) { return (await apiRequest(`/reservas/${id}`)).participantes ?? []; },
+  async createReserva(payload) { return (await apiRequest("/reservas", { method: "POST", body: JSON.stringify(payload) })).reserva; },
+  async updateReserva(id, payload) { return apiRequest(`/reservas/${id}/estado`, { method: "PUT", body: JSON.stringify(payload) }); },
+  async cambiarEstadoReserva(id, estado, motivo_cancelacion = null) { return bookingServices.updateReserva(id, { estado, motivo_cancelacion }); },
+  async deleteReserva(id) { return (await apiRequest(`/reservas/${id}`, { method: "DELETE" })).reserva; },
+});

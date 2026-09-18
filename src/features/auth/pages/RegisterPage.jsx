@@ -82,7 +82,7 @@ export function RegisterPage() {
         correo: data.email.toLowerCase(),
         telefono: data.phone,
         password: data.password,
-        rol: "TURISTA",
+        rol: "cliente",
       },
       turista: {
         tipo_documento: data.tipoDocumento,

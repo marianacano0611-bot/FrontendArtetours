@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured, withMockDelay } from "@/shared/lib/supabase";
+import { apiRequest } from "@/shared/lib/api.js";
 import { ESTADO_USUARIO_OPTIONS } from "@/shared/constants/dbEnums";
 
 export const mockClientes = [
@@ -494,5 +495,16 @@ export const clientServices = {
     window.URL.revokeObjectURL(url);
   },
 };
+
+Object.assign(clientServices, {
+  async fetchClientes() { return (await apiRequest("/turistas")).turistas ?? []; },
+  async createCliente({ usuario, turista }) {
+    const registered = await apiRequest("/auth/register", { method: "POST", body: JSON.stringify({ ...usuario, tipo_documento: turista.tipo_documento, numero_documento: turista.numero_documento, rol: "cliente" }) });
+    const id_usuario = registered.usuario.id_usuario;
+    return (await apiRequest("/turistas", { method: "POST", body: JSON.stringify({ ...turista, id_usuario }) })).turista;
+  },
+  async updateCliente(id, { turista }) { return (await apiRequest(`/turistas/${id}`, { method: "PUT", body: JSON.stringify(turista ?? {}) })).turista; },
+  async deleteCliente(id) { await apiRequest(`/turistas/${id}`, { method: "DELETE" }); return true; },
+});
 
 export default clientServices;

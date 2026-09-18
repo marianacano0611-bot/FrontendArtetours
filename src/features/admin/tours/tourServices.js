@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured, withMockDelay } from "@/shared/lib/supabase";
+import { apiRequest } from "@/shared/lib/api.js";
 import { ESTADO_TOUR_OPTIONS, ESTADO_SALIDA_OPTIONS } from "@/shared/constants/dbEnums";
 
 const TOURS_STORAGE_KEY = "artetours_mock_tours";
@@ -793,3 +794,18 @@ export const tourServices = {
 };
 
 export default tourServices;
+
+Object.assign(tourServices, {
+    async fetchTours() { return (await apiRequest("/tours")).tours ?? []; },
+    async createTour(payload) { return (await apiRequest("/tours", { method: "POST", body: JSON.stringify(payload) })).tour; },
+    async updateTour(id, payload) { return (await apiRequest(`/tours/${id}`, { method: "PUT", body: JSON.stringify(payload) })).tour; },
+    async deleteTour(id) { await apiRequest(`/tours/${id}`, { method: "DELETE" }); return true; },
+    async fetchCategoriasTour() { return (await apiRequest("/categorias-tour")).categorias ?? []; },
+    async createCategoriaTour(payload) { return (await apiRequest("/categorias-tour", { method: "POST", body: JSON.stringify(payload) })).categoria; },
+    async updateCategoriaTour(id, payload) { return (await apiRequest(`/categorias-tour/${id}`, { method: "PUT", body: JSON.stringify(payload) })).categoria; },
+    async deleteCategoriaTour(id) { await apiRequest(`/categorias-tour/${id}`, { method: "DELETE" }); return true; },
+    async fetchSalidasTour() { return (await apiRequest("/salidas-tour")).salidas ?? []; },
+    async createSalidaTour(payload) { return (await apiRequest("/salidas-tour", { method: "POST", body: JSON.stringify(payload) })).salida; },
+    async updateSalidaTour(id, payload) { return (await apiRequest(`/salidas-tour/${id}`, { method: "PUT", body: JSON.stringify(payload) })).salida; },
+    async deleteSalidaTour(id) { await apiRequest(`/salidas-tour/${id}`, { method: "DELETE" }); return true; },
+});

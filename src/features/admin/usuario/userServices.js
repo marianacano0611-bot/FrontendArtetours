@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured, withMockDelay } from "@/shared/lib/supabase.js";
+import { apiRequest } from "@/shared/lib/api.js";
 
 export const USER_ROLE_OPTIONS = [
     { value: "1", label: "Administrador" },
@@ -596,3 +597,19 @@ export const userServices = {
 
     getPermissionKeysByIds,
 };
+
+Object.assign(userServices, {
+    async getUsers() { return (await apiRequest("/usuarios")).usuarios ?? []; },
+    async createUser(payload) {
+        const data = await apiRequest("/auth/register", { method: "POST", body: JSON.stringify({ ...payload, tipo_documento: payload.tipo_documento || "CC", numero_documento: payload.numero_documento || `TEMP-${Date.now()}`, rol: payload.rol || "cliente" }) });
+        return data.usuario;
+    },
+    async updateUser(id, payload) { return (await apiRequest(`/usuarios/${id}`, { method: "PUT", body: JSON.stringify(payload) })).usuario; },
+    async deleteUser(id) { await apiRequest(`/usuarios/${id}`, { method: "DELETE" }); return true; },
+    async toggleUserStatus(id) { const user = await apiRequest(`/usuarios/${id}`); const estado = user.usuario.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO"; return (await apiRequest(`/usuarios/${id}/estado`, { method: "PATCH", body: JSON.stringify({ estado }) })).usuario.estado; },
+    async getRoles() { return (await apiRequest("/roles")).roles ?? []; },
+    async createRole(payload) { return (await apiRequest("/roles", { method: "POST", body: JSON.stringify(payload) })).rol; },
+    async updateRole(id, payload) { return (await apiRequest(`/roles/${id}`, { method: "PUT", body: JSON.stringify(payload) })).rol; },
+    async deleteRole(id) { await apiRequest(`/roles/${id}`, { method: "DELETE" }); return true; },
+    async toggleRoleActivo(id) { return true; },
+});

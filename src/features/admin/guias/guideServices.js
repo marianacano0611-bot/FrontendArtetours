@@ -1,4 +1,5 @@
 import { TIPO_DOCUMENTO_OPTIONS, GENERO_OPTIONS, NIVEL_IDIOMA_OPTIONS, ESTADO_USUARIO_OPTIONS } from "@/shared/constants/dbEnums";
+import { apiRequest } from "@/shared/lib/api.js";
 
 export const IDIOMA_OPTIONS = [
     { value: 1, label: "Español" },
@@ -410,3 +411,11 @@ export const GUIDE_SPECIALTY_OPTIONS = [
     { value: "Naturaleza", label: "Naturaleza" },
     { value: "Aventura", label: "Aventura" },
 ];
+
+Object.assign(guideServices, {
+    async getGuias() { return (await apiRequest("/guias")).guias ?? []; },
+    async getGuiaById(id) { return (await apiRequest(`/guias/${id}`)).guia; },
+    async createGuia(payload) { return (await apiRequest("/guias", { method: "POST", body: JSON.stringify(payload) })).guia; },
+    async updateGuia(id, payload) { return (await apiRequest(`/guias/${id}`, { method: "PUT", body: JSON.stringify(payload) })).guia; },
+    async deleteGuia(id) { await apiRequest(`/guias/${id}`, { method: "DELETE" }); return true; },
+});

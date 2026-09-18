@@ -1,5 +1,6 @@
 import { METODO_PAGO_OPTIONS, ESTADO_VENTA_OPTIONS } from "@/shared/constants/dbEnums.js";
 import { mockReservas, mockClientes, mockTours } from "@/features/admin/reservas/bookingServices";
+import { apiRequest } from "@/shared/lib/api.js";
 
 const IMPUESTO_PORCENTAJE = 0.19;
 
@@ -436,6 +437,22 @@ export const abonoServices = {
     URL.revokeObjectURL(url);
   },
 };
+
+Object.assign(ventaServices, {
+  async getVentas() { return (await apiRequest("/ventas")).ventas ?? []; },
+  async getVentaById(id) { return (await apiRequest(`/ventas/${id}`)).venta; },
+  async createVenta(payload) { return (await apiRequest("/ventas", { method: "POST", body: JSON.stringify(payload) })).venta; },
+  async updateVenta(id, payload) { return (await apiRequest(`/ventas/${id}/estado`, { method: "PUT", body: JSON.stringify({ estado: payload.estado }) })).venta; },
+  async deleteVenta(id) { await apiRequest(`/ventas/${id}`, { method: "DELETE" }); return true; },
+});
+
+Object.assign(abonoServices, {
+  async getAbonosByVenta(id) { return (await apiRequest(`/abonos?id_venta=${id}`)).abonos ?? []; },
+  async getAllAbonosConVenta() { return (await apiRequest("/abonos")).abonos ?? []; },
+  async createAbono(payload) { return (await apiRequest("/abonos", { method: "POST", body: JSON.stringify(payload) })); },
+  async updateAbono(id, payload) { return (await apiRequest(`/abonos/${id}`, { method: "PUT", body: JSON.stringify(payload) })).abono; },
+  async deleteAbono(id) { await apiRequest(`/abonos/${id}`, { method: "DELETE" }); return true; },
+});
 
 export const paymentServices = {
   ...ventaServices,

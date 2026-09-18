@@ -1,5 +1,10 @@
-import React from "react";
+import { Navigate, useLocation } from "react-router";
+
 export function ProtectedRoute({ children }) {
-    // En el futuro, agrega aquí la lógica de verificación de sesión/token.
+    const location = useLocation();
+    const token = window.localStorage.getItem("artetours_token");
+    if (!token) {
+        return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+    }
     return <>{children}</>;
 }
